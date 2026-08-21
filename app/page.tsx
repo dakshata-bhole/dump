@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PsyduckCanvas from '@/components/PsyduckCanvas';
 import { PLAINTEXT_MESSAGE, CIPHERTEXT_MESSAGE } from '@/lib/vigenere';
-import { Film, Lock, Unlock } from 'lucide-react';
+import { Film } from 'lucide-react';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1);
@@ -24,7 +24,6 @@ export default function Home() {
   const [introStage, setIntroStage] = useState<'ready' | '1' | '2' | '3' | 'video'>('ready');
   const [videoEnded, setVideoEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Handle Page 1 Submission
   const handleAccessSubmit = (e: React.FormEvent) => {
@@ -57,7 +56,7 @@ export default function Home() {
     let currentIdx = 0;
 
     const interval = setInterval(() => {
-      currentIdx += Math.floor(Math.random() * 8) + 4;
+      currentIdx += Math.floor(Math.random() * 14) + 10;
       if (currentIdx >= totalLength) {
         currentIdx = totalLength;
         clearInterval(interval);
@@ -72,25 +71,8 @@ export default function Home() {
         const currentProgress = Math.floor((currentIdx / totalLength) * 100);
         setProgress(currentProgress);
       }
-    }, 25);
+    }, 12);
   };
-
-  // Play background music on Page 2
-  useEffect(() => {
-    if (currentPage === 2 && audioRef.current) {
-      audioRef.current.volume = 0.3;
-      audioRef.current.muted = false;
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.log('Autoplay blocked, waiting for user interaction', error);
-        });
-      }
-    } else if (currentPage !== 2 && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-  }, [currentPage]);
 
   // Countdown timer on Page 3: "Are you ready?" -> "1" -> "2" -> "3" -> video
   useEffect(() => {
@@ -112,15 +94,6 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-slate-50 text-slate-900 flex flex-col justify-center items-center select-none">
-      {/* Background Music - Reflections by The Neighbourhood */}
-      <audio
-        ref={audioRef}
-        src="/reflections.mp3"
-        loop
-        controls
-        className="fixed bottom-4 right-4 h-8 z-50"
-      />
-
       {/* 3D WebGL Background Canvas */}
       <PsyduckCanvas currentPage={currentPage} />
 
@@ -181,19 +154,6 @@ export default function Home() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="z-10 w-full max-w-4xl min-h-screen px-4 py-8 flex flex-col justify-between items-center"
           >
-            {/* Header Info */}
-            <div className="w-full flex justify-between items-center pb-4 border-b border-sky-200 text-xs crypto-font text-sky-800 font-semibold">
-              <div className="flex items-center gap-2">
-                {decryptionComplete ? (
-                  <Unlock className="w-4 h-4 text-sky-600" />
-                ) : (
-                  <Lock className="w-4 h-4 text-sky-600 animate-pulse" />
-                )}
-                <span>CRYPTOGRAPHY</span>
-              </div>
-              <div>DECRYPTED {progress}%</div>
-            </div>
-
             {/* Progress Bar */}
             <div className="w-full h-2 bg-sky-100 overflow-hidden my-3 rounded-full border border-sky-200">
               <div
@@ -218,7 +178,7 @@ export default function Home() {
             {/* Clean Input & Key Hint */}
             {!decryptionComplete ? (
               <form onSubmit={handleKeySubmit} className="w-full max-w-md flex flex-col items-center gap-3">
-                <div className="text-xs text-sky-700 tracking-widest crypto-font font-medium">
+                <div className="text-sm md:text-base text-sky-700 tracking-wide crypto-font font-medium text-center px-2">
                   enter "decrypt" to decrypt the whole message, baldylocks
                 </div>
                 <div className="w-full relative glass-card glass-card-focus rounded-2xl overflow-hidden">
